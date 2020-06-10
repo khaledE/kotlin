@@ -78,7 +78,7 @@ class FakeOverrideBuilderImpl(
 
         val typeParameters = classifier.owner.typeParameters.map { it.symbol }
         val typeArguments =
-            superType.arguments.map { it as? IrSimpleType ?: error("Unexpected super type $it") }
+            superType.arguments.map { it as? IrType ?: error("Unexpected super type argument: $it") }
 
         assert(typeParameters.size == typeArguments.size) {
             "typeParameters = $typeParameters size != typeArguments = $typeArguments size "
