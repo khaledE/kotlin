@@ -380,7 +380,7 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
     private fun FirTypeRef.withTypeArgumentsForBareType(argument: FirExpression): FirTypeRef {
         // TODO: Everything should also work for case of checked-type itself is a type alias
         val baseTypeArguments =
-            argument.typeRef.coneTypeSafe<ConeClassLikeType>()?.fullyExpandedType(session)?.typeArguments
+            argument.typeRef.coneTypeSafe<ConeKotlinType>()?.fullyExpandedType(session)?.typeArguments
         val type = coneTypeSafe<ConeKotlinType>()
         return if (type?.typeArguments?.isEmpty() != true ||
             type is ConeTypeParameterType ||
