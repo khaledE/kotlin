@@ -269,7 +269,7 @@ class RedundantNullCheckMethodTransformer(private val generationState: Generatio
                 //  <...>   -- v is null here
 
                 val jumpsIfNull = insn.opcode == Opcodes.IFNULL
-                val originalLabel = insn.label.also { it.label /*cache label in labelNode, vise versa is done in ...*/}
+                val originalLabel = insn.label.linkWithLabel()
                 originalLabels[insn] = originalLabel
                 insn.label = synthetic(LabelNode(Label()))
 
@@ -342,7 +342,7 @@ class RedundantNullCheckMethodTransformer(private val generationState: Generatio
                 val originalLabel: LabelNode?
                 val insertAfterNotNull: AbstractInsnNode
                 if (jumpsIfInstance) {
-                    originalLabel = next.label.also { it.label /*cache label in labelNode, vise versa is done in ...*/}
+                    originalLabel = next.label.linkWithLabel()
 
                     originalLabels[next] = next.label
                     val newLabel = synthetic(LabelNode(Label()))
@@ -478,4 +478,20 @@ internal fun InsnList.popReferenceValueBefore(insn: AbstractInsnNode) {
         else ->
             insertBefore(insn, InsnNode(Opcodes.POP))
     }
+}
+
+internal fun LabelNode.linkWithLabel(): LabelNode {
+    // Cache labelNode in label and  vise versa.
+    // Before ASM 8 there was JB patch in MethodNode that makes such cashing in constructor of LabelNode
+    // protected LabelNode getLabelNode(final Label label) {
+    //    if (!(label.info instanceof LabelNode)) {
+    //      //label.info = new LabelNode(label); //[JB: needed for Coverage agent]
+    //      label.info = new LabelNode(); //ASM 8
+    //    }
+    //    return (LabelNode) label.info;
+    //  }
+    if (label.info == null) {
+        label.info = this
+    }
+    return this
 }

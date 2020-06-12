@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.codegen.TransformationMethodVisitor
 import org.jetbrains.kotlin.codegen.inline.*
 import org.jetbrains.kotlin.codegen.optimization.common.*
 import org.jetbrains.kotlin.codegen.optimization.fixStack.FixStackMethodTransformer
+import org.jetbrains.kotlin.codegen.optimization.nullCheck.linkWithLabel
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.config.isReleaseCoroutines
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes
@@ -741,8 +742,8 @@ class CoroutineTransformerMethodVisitor(
         suspendMarkerVarIndex: Int,
         suspendPointLineNumber: LineNumberNode?
     ): LabelNode {
-        val continuationLabel = LabelNode()
-        val continuationLabelAfterLoadedResult = LabelNode()
+        val continuationLabel = LabelNode().linkWithLabel()
+        val continuationLabelAfterLoadedResult = LabelNode().linkWithLabel()
         val suspendElementLineNumber = lineNumber
         var nextLineNumberNode = nextDefinitelyHitLineNumber(suspension)
         with(methodNode.instructions) {
@@ -762,7 +763,7 @@ class CoroutineTransformerMethodVisitor(
                 ifacmpne(continuationLabelAfterLoadedResult.label)
 
                 // Exit
-                val returnLabel = LabelNode()
+                val returnLabel = LabelNode().linkWithLabel()
                 visitLabel(returnLabel.label)
                 // Special line number to stop in debugger before suspend return
                 visitLineNumber(suspendElementLineNumber, returnLabel.label)
