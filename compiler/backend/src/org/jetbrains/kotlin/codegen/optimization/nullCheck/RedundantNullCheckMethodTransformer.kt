@@ -269,7 +269,7 @@ class RedundantNullCheckMethodTransformer(private val generationState: Generatio
                 //  <...>   -- v is null here
 
                 val jumpsIfNull = insn.opcode == Opcodes.IFNULL
-                val originalLabel = insn.label
+                val originalLabel = insn.label.also { it.label /*cache label in labelNode, vise versa is done in ...*/}
                 originalLabels[insn] = originalLabel
                 insn.label = synthetic(LabelNode(Label()))
 
@@ -342,7 +342,8 @@ class RedundantNullCheckMethodTransformer(private val generationState: Generatio
                 val originalLabel: LabelNode?
                 val insertAfterNotNull: AbstractInsnNode
                 if (jumpsIfInstance) {
-                    originalLabel = next.label
+                    originalLabel = next.label.also { it.label /*cache label in labelNode, vise versa is done in ...*/}
+
                     originalLabels[next] = next.label
                     val newLabel = synthetic(LabelNode(Label()))
                     methodNode.instructions.add(newLabel)
