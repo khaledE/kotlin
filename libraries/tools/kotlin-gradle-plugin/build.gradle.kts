@@ -207,4 +207,4 @@ pluginBundle {
     )
 }
 
-publishPluginMarkers()
+publishPluginMarkers(false)
